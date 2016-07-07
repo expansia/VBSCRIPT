@@ -1,49 +1,144 @@
-'******************************************************************************
-'* Fichier:	Ouvrir_Dossier.vbs                                            *
-'* Auteur:	Bruno Boissonnet                                              *
-'* Date:	08/10/2014                                                    *
-'* Description: Script qui crée des dossiers.                                 *
-'*                                                                            *
-'* Remarques:   - Il faut renseigner les variables strDossier*                *
-'******************************************************************************
+'+----------------------------------------------------------------------------+
+'| Fichier     : Ouvrir_Dossier.vbs                                           |
+'+----------------------------------------------------------------------------+
+'| Version     : 3.0                                                          |
+'+----------------------------------------------------------------------------+
+'| Description :                                                              |
+'|                                                                            |
+'| Script qui crée les dossiers nécessaires sur D.                            |
+'|                                                                            |
+'|    - Il faut renseigner les variables strDossier*                          |
+'|    - Dans ce dossier le fichier EXPANSIA.erv doit avoir la date de la      |
+'|      veille.                                                               |
+'|    - Un fichier trace (constante FICHIER_TRACE) situé dans le dossier du   |
+'|      script permet de vérifier ce qu'il s'est passé.                       |
+'|    - Une fenêtre s'affiche à la fin du script pour dire si la sauvegarde   |
+'|      a réussi ou non.                                                      |
+'+----------------------------------------------------------------------------+
+
+
+' Force la déclaration des variables : on est obligé de faire : `Dim Variable`
+Option Explicit
+
+' Empêche les erreurs de s'afficher (à supprimer lors du débogage)
+' Doit être ajouté dans chaque routine
+'On Error Resume Next
+
+Const TITRE_FENETRE = "Création des dossiers sur D:"
+
+Init
+Main
+Terminate
+
+
+'------------------------------------------------------------------------------
+'                            PROGRAMME PRINCIPAL
+'------------------------------------------------------------------------------
+
+
+Sub Main()
+
+  ' ------------------------------------------------------------
+  ' -                        Variables                         -
+  ' ------------------------------------------------------------
+
+	Dim tableauDesNomsDeDossier(3), i
+	
+	tableauDesNomsDeDossier(0) = "D:\INFORMATIQUE1\"
+	tableauDesNomsDeDossier(1) = "D:\MesDocuments1\"
+	tableauDesNomsDeDossier(2) = "D:\modele1\"
+	tableauDesNomsDeDossier(3) = "D:\PERSONNEL1\"
+	
+	For i = 0 to 3
+		
+		CreerDossier( tableauDesNomsDeDossier(i) )
+	
+	Next
+
+End Sub
 
 
 
-Const strDossierInformatique = "D:\INFORMATIQUE1\"
-Const strDossierMesDocuments = "D:\MesDocuments1\"
-Const strDossierModele = "D:\modele1\"
-Const strDossierPersonnel = "D:\PERSONNEL1\"
-Const strTitre = "Création des dossiers sur D:."
-'Const strFile = "\\server\folder\file.ext"
-'Const Overwrite = True
 
+'------------------------------------------------------------------------------
+'                                PROCEDURES
+'------------------------------------------------------------------------------
 
+'------------------------------------------------------------------------------
+' Nom            : CreerDossier
+' Description    : Crée un dossier à partir du chemin complet strNomDossier
+' strNomDossier  : Chemin complet du dossier
+'------------------------------------------------------------------------------
 
-
-
-CreerDossier(strDossierInformatique)
-CreerDossier(strDossierMesDocuments)
-CreerDossier(strDossierModele)
-CreerDossier(strDossierPersonnel)
-
-result = MsgBox ("Fin du script", _
-	vbOK+vbExclamation, strTitre)
-
-'oFSO.CopyFile strFile, strFolder, Overwrite
 
 Sub CreerDossier(strNomDossier)
 
-Dim oFSO
+	Dim oFSO
+	
+	Set oFSO = CreateObject("Scripting.FileSystemObject")
+	
+	If Not oFSO.FolderExists(strNomDossier) Then
+	  oFSO.CreateFolder strNomDossier
+	Else
+		result = MsgBox ("Le dossier """ & strNomDossier & """ existe déjà.", _
+		vbOK+vbExclamation, strTitre)
+	End If
+	
+	set oFSO = Nothing
 
-Set oFSO = CreateObject("Scripting.FileSystemObject")
+End Sub
 
-If Not oFSO.FolderExists(strNomDossier) Then
-  oFSO.CreateFolder strNomDossier
-Else
-	result = MsgBox ("Le dossier """ & strNomDossier & """ existe déjà.", _
-	vbOK+vbExclamation, strTitre)
-End If
 
-set oFSO = Nothing
+'------------------------------------------------------------------------------
+' Nom         : Init
+' Description : Ecrit un repère de début du script dans le fichier de trace.
+'------------------------------------------------------------------------------
+
+Sub Init()
+
+  'Dim fichierTrace
+  '
+  'fichierTrace  = CheminDossierParent(WScript.ScriptFullName) & FICHIER_TRACE
+  '
+  'call Tracer(fichierTrace, "")
+  'call Tracer(fichierTrace, "------------------------------------------------------------------------")
+  'call Tracer(fichierTrace, " Début du script   (" & WScript.ScriptFullName & ").")
+  'call Tracer(fichierTrace, "------------------------------------------------------------------------")
+  'call Tracer(fichierTrace, "")
+
+  Dim result
+  result = MsgBox ("Début du script", vbOK+vbExclamation, TITRE_FENETRE)
+
+End Sub
+
+
+'------------------------------------------------------------------------------
+' Nom         : Terminate
+' Description : Ecrit un repère de fin de script dans le fichier de trace.
+'------------------------------------------------------------------------------
+
+Sub Terminate()
+
+  'Dim fichierTrace, objShell
+  '
+  'fichierTrace  = CheminDossierParent(WScript.ScriptFullName) & FICHIER_TRACE
+  '
+  'call Tracer(fichierTrace, "")
+  'call Tracer(fichierTrace, "------------------------------------------------------------------------")
+  'call Tracer(fichierTrace, " Fin du script   (" & WScript.ScriptFullName & ").")
+  'call Tracer(fichierTrace, "------------------------------------------------------------------------")
+  'call Tracer(fichierTrace, "")
+  '
+  'If erreurTrouvee Then
+  '  WScript.echo "Script terminé avec des erreurs !"
+  '  Set objShell = CreateObject("Wscript.Shell")
+  '  objShell.Run "notepad.exe " & fichierTrace
+  '  set objShell = Nothing
+  'Else
+  '  WScript.echo "Script terminé avec succès !"
+  'end if
+
+  Dim result
+  result = MsgBox ("Fin du script", vbOK+vbExclamation, TITRE_FENETRE)
 
 End Sub
