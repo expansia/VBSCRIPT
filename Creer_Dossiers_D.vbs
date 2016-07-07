@@ -1,7 +1,7 @@
 '+----------------------------------------------------------------------------+
 '| Fichier     : Ouvrir_Dossier.vbs                                           |
 '+----------------------------------------------------------------------------+
-'| Version     : 3.0                                                          |
+'| Version     : 3.1                                                          |
 '+----------------------------------------------------------------------------+
 '| Description :                                                              |
 '|                                                                            |
@@ -44,10 +44,10 @@ Sub Main()
 
 	Dim tableauDesNomsDeDossier(3), i
 	
-	tableauDesNomsDeDossier(0) = "D:\INFORMATIQUE1\"
-	tableauDesNomsDeDossier(1) = "D:\MesDocuments1\"
-	tableauDesNomsDeDossier(2) = "D:\modele1\"
-	tableauDesNomsDeDossier(3) = "D:\PERSONNEL1\"
+	tableauDesNomsDeDossier(0) = "D:\INFORMATIQUE\"
+	tableauDesNomsDeDossier(1) = "D:\MesDocuments\"
+	tableauDesNomsDeDossier(2) = "D:\modele\"
+	tableauDesNomsDeDossier(3) = "D:\PERSONNEL\"
 	
 	For i = 0 to 3
 		
