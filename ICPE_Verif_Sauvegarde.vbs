@@ -1,5 +1,5 @@
 '******************************************************************************
-'* Fichier     : ICPE_Sauvegarde.vbs                                          *
+'* Fichier     : ICPE_Verif_Sauvegarde.vbs                                    *
 '* Auteur      : Bruno Boissonnet                                             *
 '* Version     : 1.0                                                          *
 '* Description : Script qui vérifie que la sauvegarde de ICPE a bien été      *
