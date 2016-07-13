@@ -1,7 +1,7 @@
 '******************************************************************************
 '* Fichier     : ICPE_Verif_Sauvegarde.vbs                                    *
 '* Auteur      : Bruno Boissonnet                                             *
-'* Version     : 1.0                                                          *
+'* Version     : 2.0                                                          *
 '* Description : Script qui vérifie que la sauvegarde de ICPE a bien été      *
 '*               effectuée.                                                   *
 '* Remarques   :                                                              *
@@ -38,7 +38,7 @@ const FIN_NOM_FICHIER_ICPE    = "icpestk.dbf"
 
 dim objFSO
 dim objShell
-dim dossierICPE, fichierICPE
+dim dossierICPE, fichierICPE, fichierICPEComplet
 dim dateFichierICPE, dateHier
 dim fichierTrace
 dim listeErreurs
@@ -60,8 +60,9 @@ listeErreurs  = ""
 ' -                    Début du script                       -
 ' ------------------------------------------------------------
 call Tracer(fichierTrace, "")
-call Tracer(fichierTrace, "************************************************************************")
-call Tracer(fichierTrace, ">>>>> Début du script   (" & WScript.ScriptFullName & ").")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
+call Tracer(fichierTrace, " Début du script   (" & WScript.ScriptFullName & ").")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
 call Tracer(fichierTrace, "")
 
 
@@ -78,21 +79,20 @@ If dossierICPEExiste Then
 	' -                  Test du fichier ICPE                    -
 	' ------------------------------------------------------------
 
-	dateHier = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
-	fichierICPE = DEBUT_NOM_FICHIER_ICPE & Year(dateHier) & LPad(Month(dateHier), "0", 2) & LPad(Day(dateHier), "0", 2) & FIN_NOM_FICHIER_ICPE
-
-	fichierICPE = DOSSIER_SAUVEGARDE_ICPE & "\" & fichierICPE
+	dateHier           = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
+	fichierICPE        = DEBUT_NOM_FICHIER_ICPE & Year(dateHier) & LPad(Month(dateHier), "0", 2) & LPad(Day(dateHier), "0", 2) & FIN_NOM_FICHIER_ICPE
+	fichierICPEComplet = DOSSIER_SAUVEGARDE_ICPE & "\" & fichierICPE
 	'WScript.Echo "fichierICPE = " & fichierICPE
 
 	'WScript.Quit
 
-	fichierExiste = objFSO.FileExists(fichierICPE)
+	fichierExiste = objFSO.FileExists(fichierICPEComplet)
 
 	if fichierExiste Then
 		
 		' - Test de la date de dernière modification
 			
-		dateFichierICPE = DateDerniereModificationFichier(fichierICPE)
+		dateFichierICPE = DateDerniereModificationFichier(fichierICPEComplet)
 		
 		'dateHier = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
 		
@@ -114,7 +114,8 @@ If dossierICPEExiste Then
     call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_ICPE & "            [NOK]")
     call Tracer(fichierTrace, listeErreurs)
   Else
-    call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_ICPE & "            [OK]")
+    call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_ICPE & "                                         [OK]")
+    call Tracer(fichierTrace, "Le fichier " & fichierICPE & " (" & datefichierICPE & ") est à la date d'hier  [OK]")
   end if
   call Tracer(fichierTrace, "")
 
@@ -132,8 +133,9 @@ set objFSO = Nothing
 ' ------------------------------------------------------------
 
 call Tracer(fichierTrace, "")
-call Tracer(fichierTrace, ">>>>> Fin du script   (" & WScript.ScriptFullName & ").")
-call Tracer(fichierTrace, "************************************************************************")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
+call Tracer(fichierTrace, " Fin du script   (" & WScript.ScriptFullName & ").")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
 call Tracer(fichierTrace, "")
 
 If erreurTrouvee Then
