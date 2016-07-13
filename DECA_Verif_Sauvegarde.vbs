@@ -1,7 +1,7 @@
 '******************************************************************************
 '* Fichier     : DECA_Verif_Sauvegarde.vbs                                    *
 '* Auteur      : Bruno Boissonnet                                             *
-'* Version     : 1.0                                                          *
+'* Version     : 2.0                                                          *
 '* Description : Script qui vérifie que la sauvegarde de DECA a bien été      *
 '*               effectuée.                                                   *
 '* Remarques   :                                                              *
@@ -34,7 +34,7 @@ const FICHIER_TRACE           = "DECA_Sauvegarde.log"
 
 dim objFSO
 dim objShell
-dim dossierDECA, fichierDECA
+dim dossierDECA, fichierDECA, fichierDECAComplet
 dim dateFichierDECA, dateHier
 dim fichierTrace
 dim listeErreurs
@@ -56,8 +56,9 @@ listeErreurs  = ""
 ' -                    Début du script                       -
 ' ------------------------------------------------------------
 call Tracer(fichierTrace, "")
-call Tracer(fichierTrace, "************************************************************************")
-call Tracer(fichierTrace, ">>>>> Début du script   (" & WScript.ScriptFullName & ").")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
+call Tracer(fichierTrace, " Début du script   (" & WScript.ScriptFullName & ").")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
 call Tracer(fichierTrace, "")
 
 
@@ -74,14 +75,15 @@ If dossierDECAExiste Then
 	' -                Test du fichier BaseDECA.bak              -
 	' ------------------------------------------------------------
 
-	fichierDECA = DOSSIER_SAUVEGARDE_DECA & "\" & "BaseDECA.bak"
-	fichierExiste = objFSO.FileExists(fichierDECA)
+	fichierDECA        = "BaseDECA.bak"
+  fichierDECAComplet = DOSSIER_SAUVEGARDE_DECA & "\" & fichierDECA
+	fichierExiste      = objFSO.FileExists(fichierDECAComplet)
 
 	if fichierExiste Then
 		
 		' - Test de la date de dernière modification
 			
-		dateFichierDECA = DateDerniereModificationFichier(fichierDECA)
+		dateFichierDECA = DateDerniereModificationFichier(fichierDECAComplet)
 		
 		dateHier = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
 		
@@ -103,7 +105,8 @@ If dossierDECAExiste Then
     call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_DECA & "            [NOK]")
     call Tracer(fichierTrace, listeErreurs)
   Else
-    call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_DECA & "            [OK]")
+    call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_DECA & "                                 [OK]")
+    call Tracer(fichierTrace, "Le fichier " & fichierDECA & " (" & datefichierDECA & ") est à la date d'hier           [OK]")
   end if
   call Tracer(fichierTrace, "")
 
@@ -121,8 +124,9 @@ set objFSO = Nothing
 ' ------------------------------------------------------------
 
 call Tracer(fichierTrace, "")
-call Tracer(fichierTrace, ">>>>> Fin du script   (" & WScript.ScriptFullName & ").")
-call Tracer(fichierTrace, "************************************************************************")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
+call Tracer(fichierTrace, " Fin du script   (" & WScript.ScriptFullName & ").")
+call Tracer(fichierTrace, "------------------------------------------------------------------------")
 call Tracer(fichierTrace, "")
 
 If erreurTrouvee Then
