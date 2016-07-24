@@ -3,7 +3,7 @@ Option Explicit
 
 Const FICHIER       = "Creer_Dossiers_D.vbs"
 Const DESCRIPTION   = "Crée sur D: les dossiers nécessaires à l'installation d'un ordinateur EXPANSIA."
-Const VERSION       = "3.2"
+Const VERSION       = "3.3"
 Const AUTEUR        = "Bruno Boissonnet"
 Const DATE_CREATION = "22/07/2016"
 
@@ -24,7 +24,10 @@ Const DATE_CREATION = "22/07/2016"
 '+----------------------------------------------------------------------------+
 '|                                 CONSTANTES                                 |
 '+----------------------------------------------------------------------------+
-' Const LISTE_DOSSIERS = "D:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+' 1) Const LISTE_DOSSIERS = "D:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+' 2) Const LISTE_DOSSIERS = "D:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+' 3) Const LISTE_DOSSIERS = "Z:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+
 Const LISTE_DOSSIERS = "D:\INFORMATIQUE\,D:\MesDocuments\,D:\modele\,D:\PERSONNEL\,D:\Data\"
 
 '+----------------------------------------------------------------------------+
@@ -118,14 +121,19 @@ End Sub
 '+----------------------------------------------------------------------------+
 
 Sub CreerDossier(strNomDossier)
-
+  On Error Resume Next
 	Dim oFSO
 	
 	Set oFSO = CreateObject("Scripting.FileSystemObject")
 	
 	If Not oFSO.FolderExists(strNomDossier) Then
 	  oFSO.CreateFolder strNomDossier
-    WScript.Echo("Création du dossier """ & strNomDossier & """ : OK.")
+    If Err.Number <> 0 Then
+      WScript.Echo "Erreur lors de l'appel de la fonction CreateFolder (Numéro: " & Err.Number & ", Description: " &  Err.Description & ", Dossier : " & strNomDossier & ")"
+      Err.Clear
+    Else
+      WScript.Echo("Création du dossier """ & strNomDossier & """ : OK.")
+    End If
 	Else
 		WScript.Echo("Le dossier """ & strNomDossier & """ existe déjà.")
 	End If
@@ -138,3 +146,18 @@ End Sub
 '+----------------------------------------------------------------------------+
 '|                              FIN DU SCRIPT                                 |
 '+----------------------------------------------------------------------------+
+
+'+----------------------------------------------------------------------------+
+'|                                   TESTS                                    |
+'+----------------------------------------------------------------------------+
+'|                                                                            |
+'| 1) Tout est correct.                                                       |
+'| 2) Le dossier existe déjà. (répéter l'opération précédente).               |
+'| 3) Le dossier n'existe pas (modifier le chemin en supprimant une lettre)   |
+'|                                                                            |
+'+----------------------------------------------------------------------------+
+
+' 1) Const LISTE_DOSSIERS = "D:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+' 2) Const LISTE_DOSSIERS = "D:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+' 3) Const LISTE_DOSSIERS = "Z:\INFORMATIQUE1\,D:\MesDocuments1\,D:\modele1\,D:\PERSONNEL1\,D:\Data1\"
+
