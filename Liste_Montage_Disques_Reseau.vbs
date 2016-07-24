@@ -1,20 +1,23 @@
-'+----------------------------------------------------------------------------+
-'| Fichier     : Liste_Montage_Disques_Reseau.vbs                             |
-'+----------------------------------------------------------------------------+
-'| Version     : 1.0                                                          |
-'+----------------------------------------------------------------------------+
-'| Description :                                                              |
-'|                                                                            |
-'| Renvoie la liste des disques réseau montés sur l'ordinateur.               |
-'+----------------------------------------------------------------------------+
-
-
 ' Force la déclaration des variables : on est obligé de faire `Dim Variable`
 Option Explicit
 
+Const FICHIER       = "Liste_Montage_Disques_Reseau.vbs"
+Const DESCRIPTION   = "Renvoie la liste des disques réseau montés sur l'ordinateur."
+Const VERSION       = "2.0"
+Const AUTEUR        = "Bruno Boissonnet"
+Const DATE_CREATION = "22/07/2016"
+
+
+' Remaques : 
+' - À enregistrer avec l'encodage ANSI
+' - Utiliser "option explicit" pour forcer la déclaration des variables
+' - Si on ne souhaite pas utiliser l'interface graphique :
+'     cscript.exe //NoLogo Liste_Montage_Disques_Reseau.vbs > Liste_Montage_Disques_Reseau.log
+
+
 ' Empêche les erreurs de s'afficher (à supprimer lors du débogage)
 ' Doit être ajouté dans chaque routine
-'On Error Resume Next
+' On Error Resume Next
 
 
 '+----------------------------------------------------------------------------+
@@ -38,10 +41,9 @@ Terminate
 
 Sub Main()
 
-  Dim strFichierTrace, strTrace, strComputer, objWMIService, colItems, objItem
+  Dim strTrace, strComputer, objWMIService, colItems, objItem
   
   strTrace        = ""
-  strFichierTrace = NomFichierTrace()
   strComputer     = "."
   
   
@@ -51,154 +53,94 @@ Sub Main()
   Set colItems = objWMIService.ExecQuery("Select * from Win32_MappedLogicalDisk")
   
   For Each objItem in colItems
-      ' strTrace = strTrace & "Compressed: " & objItem.Compressed & vbCRLF
-      ' strTrace = strTrace & "Description: " & objItem.Description & vbCRLF
-      ' strTrace = strTrace & "Device ID: " & objItem.DeviceID & vbCRLF
-      ' strTrace = strTrace & "File System: " & objItem.FileSystem & vbCRLF
-      ' strTrace = strTrace & "Free Space: " & objItem.FreeSpace & vbCRLF
-      ' strTrace = strTrace & "Maximum Component Length: " & objItem.MaximumComponentLength & vbCRLF
-      ' strTrace = strTrace & "Name: " & objItem.Name & vbCRLF
-      ' strTrace = strTrace & "Provider Name: " & objItem.ProviderName & vbCRLF
-      ' strTrace = strTrace & "Session ID: " & objItem.SessionID & vbCRLF
-      ' strTrace = strTrace & "Size: " & objItem.Size & vbCRLF
-      ' strTrace = strTrace & "Supports Disk Quotas: " & objItem.SupportsDiskQuotas & vbCRLF
-      ' strTrace = strTrace & "Supports File-Based Compression: " & _
-      '     objItem.SupportsFileBasedCompression & vbCRLF
-      ' strTrace = strTrace & "Volume Name: " & objItem.VolumeName & vbCRLF
-      ' strTrace = strTrace & "Volume Serial Number: " & objItem.VolumeSerialNumber & vbCRLF
-      ' strTrace = strTrace & vbCRLF
       
-  
-      ' strTrace = strTrace & "Provider Name: " & objItem.ProviderName & vbCRLF
-      ' strTrace = strTrace & "Name: " & objItem.Name & vbCRLF
-      ' strTrace = strTrace & "Volume Name: " & objItem.VolumeName & vbCRLF
+      strTrace = objItem.Name & "(" & objItem.VolumeName & ") <= " & objItem.ProviderName & "  (" & objItem.FreeSpace & " octets libres)"
+      ' ex: H:(DATA) <= \\192.168.9.5\Data  (16603258880 octets libres)
 
-      strTrace = objItem.Name & "(" & objItem.VolumeName & ") <= " & objItem.ProviderName & "  (" & objItem.FreeSpace & "octets libres)"
-      call Tracer(strFichierTrace, strTrace)
+      WScript.Echo(strTrace)
       strTrace = ""
+
   Next
 
   if colItems.Count = 0 Then
-    call Tracer(strFichierTrace, "Il n'y a pas de disques réseau montés sur cet ordinateur.")
+    WScript.Echo("Il n'y a pas de disques réseau montés sur cet ordinateur.")
   End IF
 End Sub
 
-'------------------------------------------------------------------------------
-' Nom         : Init
-' Description : Ecrit un repère de début du script dans le fichier de trace.
-'------------------------------------------------------------------------------
+
+'+----------------------------------------------------------------------------+
+'| Nom         : Init                                                         |
+'| Description : Affiche les informations sur le script.                      |
+'|               Nom du script, version, auteur et date de création           |
+'|               cf constantes : FICHIER, VERSION, AUTEUR et DATE_CREATION    |
+'+----------------------------------------------------------------------------+
 
 Sub Init()
 
-  Banniere(" Début du script   (" & WScript.ScriptFullName & ").")
+  Banniere(FICHIER & " - " & VERSION & " - " & AUTEUR & " - " & DATE_CREATION)
 
 End Sub
 
 
-'------------------------------------------------------------------------------
-' Nom         : Terminate
-' Description : Ecrit un repère de fin de script dans le fichier de trace.
-'------------------------------------------------------------------------------
+'+----------------------------------------------------------------------------+
+'| Nom         : Terminate                                                    |
+'| Description : Affiche la fin du script avec le nom complet.                |
+'+----------------------------------------------------------------------------+
 
 Sub Terminate()
 
-  'Banniere(" Fin du script   (" & WScript.ScriptFullName & ").", 67)
-  Banniere(" Fin du script   (" & WScript.ScriptFullName & ").")
+  ' Banniere(" Fin du script   (" & WScript.ScriptFullName & ").")
+  Banniere("")
 
 End Sub
 
 
-'------------------------------------------------------------------------------
-' Nom         : Banniere
-' Description : Ecrit un message dans le fichier de trace.
-'------------------------------------------------------------------------------
+'+----------------------------------------------------------------------------+
+'| Nom         : Banniere                                                     |
+'| Description : Ecrit un message encadré entre 2 lignes.                     |
+'| strMessage  : Le message à écrire.                                         |
+'+----------------------------------------------------------------------------+
 
 Sub Banniere(strMessage)
 
-  Dim fichierTrace
+  Dim strTrace
 
-  fichierTrace  = NomFichierTrace()
+  strTrace = vbCRLF
+  strTrace = strTrace & "------------------------------------------------------------------------" & vbCRLF
+  If strMessage <> "" Then
+    strTrace = strTrace & "  " & strMessage & vbCRLF
+  End If
+  strTrace = strTrace & "------------------------------------------------------------------------" & vbCRLF
+  strTrace = strTrace & vbCRLF
 
-  call Tracer(fichierTrace, "")
-  call Tracer(fichierTrace, "------------------------------------------------------------------------")
-  call Tracer(fichierTrace, strMessage)
-  call Tracer(fichierTrace, "------------------------------------------------------------------------")
-  call Tracer(fichierTrace, "")
-
-End Sub
-
-
-'------------------------------------------------------------------------------
-' Nom         : Banniere
-' Description : Ecrit un message dans le fichier de trace.
-'------------------------------------------------------------------------------
-
-Function NomFichierTrace()
-
-  const FICHIER_TRACE_EXT = ".log"
-
-  NomFichierTrace  = NomFichierSansExtension(WScript.ScriptFullName) & FICHIER_TRACE_EXT
-
-End Function
-
-
-' ---
-' NomFichierSansExtension
-' Renvoie le nom du fichier sans son extension.
-' ---
-Function NomFichierSansExtension(sNomAvecExt)
-
-  Dim nPositionDernierPoint, nLongueurNomFichier 
-  
-  ' Pour récupérer le nom du fichier
-  ' 1. On récupère la position du dernier point
-  nPositionDernierPoint  = InStrRev(sNomAvecExt, ".")
-  'WScript.Echo "nPositionDernierPoint = " & nPositionDernierPoint 
-  ' 2. On calcule la longueur du nom du fichier à partir cette position
-  nLongueurNomFichier = nPositionDernierPoint - 1
-  'WScript.Echo "nLongueurNomFichier = " & nLongueurNomFichier
-  ' 3. On récupère la chaîne de cette longueur à partir de la gauche
-  NomFichierSansExtension = Left(sNomAvecExt, nLongueurNomFichier)
-  'WScript.Echo "NomFichierSansExtension = " & NomFichierSansExtension
-
-End Function
-
-
-'------------------------------------------------------------------------------
-' Nom                          : Tracer.
-' Description                  : Ecrit dans le fichier strCheminCompletFichierTrace la chaîne strTrace
-' strCheminCompletFichierTrace : Chemin complet du fichier.
-' strTrace                     : Ce qu'il faut écrire dans le fichier.
-'------------------------------------------------------------------------------
-
-Public Sub Tracer(strCheminCompletFichierTrace, strTrace)
-    On Error Resume Next
-    Dim objFSO, objFile
-
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    Set objFile = objFSO.OpenTextFile(strCheminCompletFichierTrace, 8, True, -1) ' 8 = ForAppending, True pour créer le fichier s'il n'existe pas, -1 pour écrire au format Unicode
-
-    If Err.Number <> 0 Then
-        WScript.Echo "Erreur lors de l'appel de la fonction OpenTextFile." & vbNewLine & " (Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
-        Err.Clear
-    Else
-        ' Dim MyVar
-        ' MyVar = Now ' MyVar contains the current date and time.
-        ' On écrit dans le fichier
-        ' objFile.WriteLine MyVar & " " & strTrace
-        objFile.WriteLine strTrace
-
-        If Err.Number <> 0 Then
-            WScript.Echo "Erreur lors de l'appel de la fonction WriteLine." & vbNewLine & " (Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
-            Err.Clear
-        End If
-
-        ' On ferme le fichier
-        objFile.Close
-        Set objFile = Nothing
-    End If
-
-    Set objFSO = Nothing
+  WScript.Echo strTrace
 
 End Sub
 
+
+
+'+----------------------------------------------------------------------------+
+'|                              FIN DU SCRIPT                                 |
+'+----------------------------------------------------------------------------+
+
+
+
+' strTrace = strTrace & "Compressed: " & objItem.Compressed & vbCRLF
+' strTrace = strTrace & "Description: " & objItem.Description & vbCRLF
+' strTrace = strTrace & "Device ID: " & objItem.DeviceID & vbCRLF
+' strTrace = strTrace & "File System: " & objItem.FileSystem & vbCRLF
+' strTrace = strTrace & "Free Space: " & objItem.FreeSpace & vbCRLF
+' strTrace = strTrace & "Maximum Component Length: " & objItem.MaximumComponentLength & vbCRLF
+' strTrace = strTrace & "Name: " & objItem.Name & vbCRLF
+' strTrace = strTrace & "Provider Name: " & objItem.ProviderName & vbCRLF
+' strTrace = strTrace & "Session ID: " & objItem.SessionID & vbCRLF
+' strTrace = strTrace & "Size: " & objItem.Size & vbCRLF
+' strTrace = strTrace & "Supports Disk Quotas: " & objItem.SupportsDiskQuotas & vbCRLF
+' strTrace = strTrace & "Supports File-Based Compression: " & _
+'     objItem.SupportsFileBasedCompression & vbCRLF
+' strTrace = strTrace & "Volume Name: " & objItem.VolumeName & vbCRLF
+' strTrace = strTrace & "Volume Serial Number: " & objItem.VolumeSerialNumber & vbCRLF
+' strTrace = strTrace & vbCRLF
+' strTrace = strTrace & "Provider Name: " & objItem.ProviderName & vbCRLF
+' strTrace = strTrace & "Name: " & objItem.Name & vbCRLF
+' strTrace = strTrace & "Volume Name: " & objItem.VolumeName & vbCRLF
