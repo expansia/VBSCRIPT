@@ -1,184 +1,201 @@
-'******************************************************************************
-'* Fichier     : ICPE_Verif_Sauvegarde.vbs                                    *
-'* Auteur      : Bruno Boissonnet                                             *
-'* Version     : 2.0                                                          *
-'* Description : Script qui vérifie que la sauvegarde de ICPE a bien été      *
-'*               effectuée.                                                   *
-'* Remarques   :                                                              *
-'*               - Vérifie le dossier                                         *
-'*                    \\ARAMON02\e\SAUVEGARDES\ICPE                           *
-'*               - Dans ce dossier le fichier 3_AAAAMMJJicpestk.dbf doit      *
-'*                 avoir la date de la veille.                                *
-'*               - Un fichier trace (constante FICHIER_TRACE) situé dans le   *
-'*                 dossier du script permet de vérifier ce qu'il s'est passé. *
-'******************************************************************************
-
-' Force la déclaration des variables : on est obligé de faire : `Dim Variable`
+' Force la déclaration des variables : on est obligé de faire `Dim Variable`
 Option Explicit
+
+Const FICHIER       = "ICPE_Verif_Sauvegarde.vbs"
+Const DESCRIPTION   = "Vérifie que la sauvegarde de ICPE a bien été effectuée."
+Const VERSION       = "3.0"
+Const AUTEUR        = "Bruno Boissonnet"
+Const DATE_CREATION = "22/07/2016"
+
+
+' Remaques :
+' - Le nom du fichier à vérifier est dans la constante FICHIER_A_VERIFIER 
+' - À enregistrer avec l'encodage ANSI
+' - Utiliser "option explicit" pour forcer la déclaration des variables
+' - Si on ne souhaite pas utiliser l'interface graphique :
+'     cscript.exe //NoLogo ICPE_Verif_Sauvegarde.vbs > ICPE_Verif_Sauvegarde.log
+
 
 ' Empêche les erreurs de s'afficher (à supprimer lors du débogage)
 ' Doit être ajouté dans chaque routine
-'On Error Resume Next
+' On Error Resume Next
 
-' ------------------------------------------------------------
-' -                        Constantes                        -
-' ------------------------------------------------------------
 
-const FICHIER_TRACE           = "ICPE_Sauvegarde.log"
-'const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\BRB06301\Desktop\SAUVEGARDES\ICPE"
+'+----------------------------------------------------------------------------+
+'|                                 CONSTANTES                                 |
+'+----------------------------------------------------------------------------+
+' Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb6301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA"
 const DOSSIER_SAUVEGARDE_ICPE = "E:\SAUVEGARDES\ICPE"
 const DEBUT_NOM_FICHIER_ICPE  = "3_"
 const FIN_NOM_FICHIER_ICPE    = "icpestk.dbf"
 
+'+----------------------------------------------------------------------------+
+'|                             PROGRAMME PRINCIPAL                            |
+'+----------------------------------------------------------------------------+
+
+Init
+Main  ' ou Call Main()
+Terminate
 
 
+
+'+----------------------------------------------------------------------------+
+'|                             PROCÉDURES/FONCTIONS                           |
+'+----------------------------------------------------------------------------+
+
+Sub Main()
 ' ------------------------------------------------------------
 ' -                        Variables                         -
 ' ------------------------------------------------------------
 
 dim objFSO
-dim objShell
-dim dossierICPE, fichierICPE, fichierICPEComplet
-dim dateFichierICPE, dateHier
-dim fichierTrace
+dim dossier, fichier, dossierExiste, fichierExiste
+dim dateFichier, dateHier
 dim listeErreurs
-dim erreurTrouvee
-dim dossierICPEExiste
-dim fichierExiste
+dim FICHIER_A_VERIFIER
 
 
 ' ------------------------------------------------------------
 ' -                     Initialisations                      -
 ' ------------------------------------------------------------
 
-fichierTrace  = CheminDossierParent(WScript.ScriptFullName) & FICHIER_TRACE
-erreurTrouvee = False
 listeErreurs  = ""
-
-
-' ------------------------------------------------------------
-' -                    Début du script                       -
-' ------------------------------------------------------------
-call Tracer(fichierTrace, "")
-call Tracer(fichierTrace, "------------------------------------------------------------------------")
-call Tracer(fichierTrace, " Début du script   (" & WScript.ScriptFullName & ").")
-call Tracer(fichierTrace, "------------------------------------------------------------------------")
-call Tracer(fichierTrace, "")
-
+dossier       = DOSSIER_SAUVEGARDE_ICPE
+fichier       = ""
 
 ' ------------------------------------------------------------
-' -           Contrôle du dossier parent ICPE                -
+' -           Contrôle du dossier parent DECA                -
 ' ------------------------------------------------------------
 
-Set objFSO = CreateObject("Scripting.FileSystemObject")
-dossierICPEExiste = objFSO.FolderExists(DOSSIER_SAUVEGARDE_ICPE)
+Set objFSO    = CreateObject("Scripting.FileSystemObject")
+dossierExiste = objFSO.FolderExists(dossier)
 
-If dossierICPEExiste Then
+If dossierExiste Then
 
-	' ------------------------------------------------------------
-	' -                  Test du fichier ICPE                    -
-	' ------------------------------------------------------------
+  ' ------------------------------------------------------------
+  ' -                  Test du fichier ICPE                    -
+  ' ------------------------------------------------------------
 
-	dateHier           = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
-	fichierICPE        = DEBUT_NOM_FICHIER_ICPE & Year(dateHier) & LPad(Month(dateHier), "0", 2) & LPad(Day(dateHier), "0", 2) & FIN_NOM_FICHIER_ICPE
-	fichierICPEComplet = DOSSIER_SAUVEGARDE_ICPE & "\" & fichierICPE
-	'WScript.Echo "fichierICPE = " & fichierICPE
+  dateHier            = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
+  fichier             = DEBUT_NOM_FICHIER_ICPE & Year(dateHier) & LPad(Month(dateHier), "0", 2) & LPad(Day(dateHier), "0", 2) & FIN_NOM_FICHIER_ICPE
+  FICHIER_A_VERIFIER  = DOSSIER_SAUVEGARDE_ICPE & "\" & fichier
+  ' WScript.Echo "fichierICPE = " & FICHIER_A_VERIFIER
 
-	'WScript.Quit
 
-	fichierExiste = objFSO.FileExists(fichierICPEComplet)
+  ' ------------------------------------------------------------
+  ' -                Test du fichier BaseDECA.bak              -
+  ' ------------------------------------------------------------
 
-	if fichierExiste Then
-		
-		' - Test de la date de dernière modification
-			
-		dateFichierICPE = DateDerniereModificationFichier(fichierICPEComplet)
-		
-		'dateHier = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
-		
-		If Not IsEmpty(dateFichierICPE) Then
-			if StrComp(dateFichierICPE, dateHier) = 0 Then
-			   'WScript.Echo "Les dates sont identiques"
-			else
-			   'WScript.echo "Les dates ne sont pas identiques"
-			   listeErreurs = listeErreurs & "**ERREUR** : Le fichier " & fichierICPE & " (" & dateFichierICPE & ") n'est pas à la date d'hier (" & dateHier &")."
-			   erreurTrouvee = True
-			end if
-		End If
-	Else
-		listeErreurs = listeErreurs & "**ERREUR** : Le fichier " & fichierICPE & " n'existe pas."
-		erreurTrouvee = True
-	End If
+  fichierExiste = objFSO.FileExists(FICHIER_A_VERIFIER)
 
-  If erreurTrouvee Then
-    call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_ICPE & "            [NOK]")
-    call Tracer(fichierTrace, listeErreurs)
+  if fichierExiste Then
+    
+    ' - Test de la date de dernière modification
+      
+    dateFichier = DateDerniereModificationFichier(FICHIER_A_VERIFIER)
+    
+    dateHier = DateAdd("d",-1,Date) 'd: jour ; -1: un jour en moins; Date: la date à modifier
+    
+    If Not IsEmpty(dateFichier) Then
+      if StrComp(dateFichier, dateHier) = 0 Then
+         'WScript.Echo "Les dates sont identiques"
+         WScript.Echo "Sauvegarde ICPE OK."
+      else
+         'WScript.echo "Les dates ne sont pas identiques"
+         listeErreurs = "**ERREUR** : Le fichier " & fichier & " (" & dateFichier & ") n'est pas à la date d'hier (" & dateHier &")."
+      end if
+    Else
+      listeErreurs = "**ERREUR** : La date du fichier " & fichier & " n'a pas pu être lue."
+    End If
   Else
-    call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_ICPE & "                                         [OK]")
-    call Tracer(fichierTrace, "Le fichier " & fichierICPE & " (" & datefichierICPE & ") est à la date d'hier  [OK]")
-  end if
-  call Tracer(fichierTrace, "")
+    listeErreurs = "**ERREUR** : Le fichier " & fichier & " n'existe pas."
+  End If
+
 
 Else
-	call Tracer(fichierTrace, "Dossier " & DOSSIER_SAUVEGARDE_ICPE & "						[NOK]")
-	call Tracer(fichierTrace, "**ERREUR** : Le dossier " & DOSSIER_SAUVEGARDE_ICPE & " n'existe pas.")
-	call Tracer(fichierTrace, "")
-	erreurTrouvee = True
+  listeErreurs = "**ERREUR** : Le dossier " & dossier & " n'existe pas."
 end If
+
+If listeErreurs <> "" Then
+  WScript.Echo(listeErreurs)
+End If
 
 set objFSO = Nothing
 
-' ------------------------------------------------------------
-' -                      Fin du script                       -
-' ------------------------------------------------------------
-
-call Tracer(fichierTrace, "")
-call Tracer(fichierTrace, "------------------------------------------------------------------------")
-call Tracer(fichierTrace, " Fin du script   (" & WScript.ScriptFullName & ").")
-call Tracer(fichierTrace, "------------------------------------------------------------------------")
-call Tracer(fichierTrace, "")
-
-If erreurTrouvee Then
-	WScript.echo "Script terminé avec des erreurs !"
-	Set objShell = CreateObject("Wscript.Shell")
-	objShell.Run "notepad.exe " & fichierTrace
-	set objShell = Nothing
-Else
-	WScript.echo "Script terminé avec succès !"
-end if
-
-
-'******************************************************************************
-
-' ***
-' Nom         : LPad
-' Description : Formate un nombre en ajoutant des 0 devant
-' str         : chaîne contenant le nombre
-' pad         : le caractère à ajouter devant le nombre
-' length      : la longueur finale du nombre
-' retour      : Le nombre formaté
-' ***
-Function LPad (str, pad, length)
-    LPad = String(length - Len(str), pad) & str
-End Function
+End Sub
 
 
 
-' ***
-' Nom         : DateDerniereModificationFichier
-' Description : Renvoi la date de dernière modification du fichier filespec
-' filespec    : Chemin complet du fichier
-' retour      : Une date ou Empty s'il y a eu une erreur
-' ***
+'+----------------------------------------------------------------------------+
+'| Nom         : Init                                                         |
+'| Description : Affiche les informations sur le script.                      |
+'|               Nom du script, version, auteur et date de création           |
+'|               cf constantes : FICHIER, VERSION, AUTEUR et DATE_CREATION    |
+'+----------------------------------------------------------------------------+
+
+Sub Init()
+
+  Banniere(FICHIER & " - " & VERSION & " - " & AUTEUR & " - " & DATE_CREATION)
+
+End Sub
+
+
+'+----------------------------------------------------------------------------+
+'| Nom         : Terminate                                                    |
+'| Description : Affiche la fin du script avec le nom complet.                |
+'+----------------------------------------------------------------------------+
+
+Sub Terminate()
+
+  ' Banniere(" Fin du script   (" & WScript.ScriptFullName & ").")
+  Banniere("")
+
+End Sub
+
+
+'+----------------------------------------------------------------------------+
+'| Nom         : Banniere                                                     |
+'| Description : Ecrit un message encadré entre 2 lignes.                     |
+'| strMessage  : Le message à écrire.                                         |
+'+----------------------------------------------------------------------------+
+
+Sub Banniere(strMessage)
+
+  Dim strTrace
+
+  strTrace = vbCRLF
+  strTrace = strTrace & "------------------------------------------------------------------------" & vbCRLF
+  If strMessage <> "" Then
+    strTrace = strTrace & "  " & strMessage & vbCRLF
+  End If
+  strTrace = strTrace & "------------------------------------------------------------------------" & vbCRLF
+  strTrace = strTrace & vbCRLF
+
+  WScript.Echo strTrace
+
+End Sub
+
+
+'+----------------------------------------------------------------------------+
+'| Nom         : DateDerniereModificationFichier                              |
+'| Description : Renvoi la date de dernière modification de filespec.         |
+'| filespec    : Chemin complet du fichier.                                   |
+'| retour      : Une date ou Empty s'il y a eu une erreur.                    |
+'+----------------------------------------------------------------------------+
+
 Function DateDerniereModificationFichier(filespec)
    On Error Resume Next ' Empêche les erreurs de s'afficher (à supprimer lors du débogage)
    Dim objFSO, objFile, retour, strErrMsg, result
    Set objFSO = CreateObject("Scripting.FileSystemObject")
    Set objFile = objFSO.GetFile(filespec)
    If Err.Number <> 0 Then
-      strErrMsg = "Erreur lors de l'appel de la fonction GetFile." & vbNewLine & "(Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
+      strErrMsg = "Erreur lors de l'appel de la fonction GetFile." & vbNewLine & "(Numéro: " & Err.Number & ", Description: " & Err.Description & ", Fichier : " & filespec & ")"
       Err.Clear
-      result = MsgBox (strErrMsg, vbOKOnly+vbExclamation, "DateDerniereModificationFichier.vbs")
+      ' result = MsgBox (strErrMsg, vbOKOnly+vbExclamation, "DateDerniereModificationFichier.vbs")
+      WScript.Echo strErrMsg
    Else
       retour = FormatDateTime(objFile.DateLastModified, 2) ' vbShortDate - 2 - Display a date using the short date format specified in your computer's regional settings.
    End If
@@ -188,101 +205,105 @@ Function DateDerniereModificationFichier(filespec)
 End Function
 
 
-' ***
-' Nom                     : LitDerniereLigneFichier
-' Description             : Renvoi la dernière ligne lue dans le fichier passé en paramètre
-' strCheminCompletFichier : chemin complet du fichier.
-' retour                  : La dernière ligne du fichier.
-' ***
-Public Function LitDerniereLigneFichier(strCheminCompletFichier)
-   On Error Resume Next
-   Dim objFSO, objFile, objTextStream, S
-   
-   Set objFSO = CreateObject("Scripting.FileSystemObject")
-   Set objFile = objFSO.GetFile(strCheminCompletFichier)
+'+----------------------------------------------------------------------------+
+'| Nom           : CheminDossierParent                                        |
+'| Description   : Renvoi le chemin de strCheminComplet (terminé par un "\"). |
+'| strCheminComplet : Nom complet de fichier ou de dossier.                   |
+'+----------------------------------------------------------------------------+
 
-   If Err.Number <> 0 Then
-      WScript.Echo "Erreur lors de l'appel de la fonction GetFile." & vbNewLine & " (Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
-      Err.Clear
-   Else
-      Set objTextStream = objFile.OpenAsTextStream(1) '1 = ForReading
-      If Err.Number <> 0 Then
-         WScript.Echo "Erreur lors de l'appel de la fonction OpenAsTextStream." & vbNewLine & " (Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
-         Err.Clear
-      Else
-         Do    While Not objTextStream.AtEndOfStream
-            S = objTextStream.ReadLine
-         Loop
-         objTextStream.Close
-      End If
-   End If
-
-   Set objFSO        = Nothing
-   Set objFile       = Nothing
-   Set objTextStream = Nothing
-
-   LitDerniereLigneFichier = S
-
-End Function
-
-' ***
-' Nom                          : Tracer.
-' Description                  : Ecrit dans le fichier strCheminCompletFichierTrace la chaîne strTrace
-' strCheminCompletFichierTrace : Chemin complet du fichier.
-' strTrace                     : Ce qu'il faut écrire dans le fichier.
-' ***
-Public Sub Tracer(strCheminCompletFichierTrace, strTrace)
-    On Error Resume Next
-    Dim objFSO, objFile
-
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    Set objFile = objFSO.OpenTextFile(strCheminCompletFichierTrace, 8, True, -1) ' 8 = ForAppending, True pour créer le fichier s'il n'existe pas, -1 pour écrire au format Unicode
-    
-    If Err.Number <> 0 Then
-        WScript.Echo "Erreur lors de l'appel de la fonction OpenTextFile." & vbNewLine & " (Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
-        Err.Clear
-    Else
-        Dim MyVar
-        MyVar = Now ' MyVar contains the current date and time.
-        ' On écrit dans le fichier
-        objFile.WriteLine MyVar & " " & strTrace
-
-        If Err.Number <> 0 Then
-            WScript.Echo "Erreur lors de l'appel de la fonction WriteLine." & vbNewLine & " (Numéro: " & Err.Number & ", Description: " & Err.Description & ")"
-            Err.Clear
-        End If
-    
-        ' On ferme le fichier
-        objFile.Close
-        Set objFile = Nothing
-    End If
-    
-    Set objFSO = Nothing
-
-End Sub
-
-
-' ***
-' Nom              : CheminDossierParent.
-' Description      : Renvoi le chemin du dossier parent de strCheminComplet (terminé par un "\").
-' strCheminComplet : chemin complet du fichier.
-' retour           : Le chemin du dossier parent terminé par un "\".
-' ***
 Public Function CheminDossierParent(strCheminComplet)
-	On Error Resume Next
-	Dim objFSO, strCheminDossierParent, fin
-	
-	Set objFSO = CreateObject("Scripting.FileSystemObject")
-	strCheminDossierParent = objFSO.GetParentFolderName(strCheminComplet)
-	' Pas besoin de vérification d'erreur car GetParentFolderName ne travaille
-	' pas sur des fichiers mais sur une chaîne de caractère.
-	
-	Set objFSO = Nothing
-	' On ajoute une barre oblique inversée au cas où il n'y en aurait pas
-	fin = Right(strCheminDossierParent, 1)
-	if fin = "\" Then
-		CheminDossierParent = strCheminDossierParent
-	Else
-		CheminDossierParent = strCheminDossierParent  & "\" 
-	End If
+  On Error Resume Next
+  Dim objFSO, strCheminDossierParent, fin
+  
+  Set objFSO = CreateObject("Scripting.FileSystemObject")
+  strCheminDossierParent = objFSO.GetParentFolderName(strCheminComplet)
+  ' Pas besoin de vérification d'erreur car GetParentFolderName ne travaille
+  ' pas sur des fichiers mais sur une chaîne de caractère.
+  
+  Set objFSO = Nothing
+  ' On ajoute une barre oblique inversée au cas où il n'y en aurait pas
+  fin = Right(strCheminDossierParent, 1)
+  if fin = "\" Then
+    ' WScript.Echo "Il y a déjà un antislash à la fin"
+    CheminDossierParent = strCheminDossierParent
+  Else
+    ' WScript.Echo "Il faut ajouter un antislash à la fin"
+    CheminDossierParent = strCheminDossierParent  & "\" 
+  End If
 End Function
+
+
+'+----------------------------------------------------------------------------+
+'| Nom           : NomFichierSansChemin                                       |
+'| Description   : Renvoie le nom du fichier (+extension) sans le chemin.     |
+'| strNomComplet : Le nom complet du fichier : chemin + nom + extension.      |
+'+----------------------------------------------------------------------------+
+
+Function NomFichierSansChemin(strNomComplet)
+
+  Dim objFSO, fullpath
+  
+  Set objFSO = CreateObject("Scripting.FileSystemObject") 
+  fullpath = objFSO.GetFileName(strNomComplet)
+  ' Pas besoin de vérification d'erreur car GetFileName ne travaille
+  ' pas sur des fichiers mais sur une chaîne de caractère.
+  Set objFSO = Nothing
+  NomFichierSansChemin = fullpath
+
+End Function
+
+
+
+'+----------------------------------------------------------------------------+
+'| Nom         : LPad                                                         |
+'| Description : Formate un nombre en ajoutant des 0 devant.                  |
+'| str         : chaîne contenant le nombre.                                  |
+'| pad         : le caractère à ajouter devant le nombre.                     |
+'| length      : la longueur finale du nombre.                                |
+'| retour      : Le nombre formaté.                                           |
+'+----------------------------------------------------------------------------+
+
+Function LPad (str, pad, length)
+    LPad = String(length - Len(str), pad) & str
+End Function
+
+
+
+'+----------------------------------------------------------------------------+
+'|                              FIN DU SCRIPT                                 |
+'+----------------------------------------------------------------------------+
+
+
+'+----------------------------------------------------------------------------+
+'|                                   TESTS                                    |
+'+----------------------------------------------------------------------------+
+'|                                                                            |
+'| 1) Tout est correct                                                        |
+'| 2) Le dossier n'existe pas (modifier le chemin en supprimant une lettre)   |
+'| 3) Le fichier n'existe pas (modifier FIN_NOM_FICHIER_ICPE en supprimant une|
+'|    lettre).                                                                |
+'| 4) Le fichier n'est pas à la bonne date (prendre un fichier quelconque et  |
+'|    lui donner le nom d'un fichier icpe).                                   |
+'+----------------------------------------------------------------------------+
+
+' 1) Const FICHIER_A_VERIFIER = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA\historique_Granta.txt"
+' 2) Const FICHIER_A_VERIFIER = "C:\Users\brb6301\hubiC\EXPANSIA\Scripts EXPANSIA\historique_Granta.txt"
+' 3) Const FICHIER_A_VERIFIER = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA\historique_Grant.txt"
+' 4) Const FICHIER_A_VERIFIER = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA\LIMS_Sauvegardes_v1.vbs"
+
+' 1) Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' 1) const DEBUT_NOM_FICHIER_ICPE  = "3_"
+' 1) const FIN_NOM_FICHIER_ICPE    = "icpestk.dbf"
+
+' 2) Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb6301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' 2) const DEBUT_NOM_FICHIER_ICPE  = "3_"
+' 2) const FIN_NOM_FICHIER_ICPE    = "icpestk.dbf"
+
+' 3) Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' 3) const DEBUT_NOM_FICHIER_ICPE  = "3_"
+' 3) const FIN_NOM_FICHIER_ICPE    = "icpest.dbf"
+
+' 4) Const DOSSIER_SAUVEGARDE_ICPE = "C:\Users\brb06301\hubiC\EXPANSIA\Scripts EXPANSIA"
+' 4) const DEBUT_NOM_FICHIER_ICPE  = "3_"
+' 4) const FIN_NOM_FICHIER_ICPE    = "icpestk.dbf"
+
