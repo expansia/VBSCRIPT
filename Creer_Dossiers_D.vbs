@@ -13,7 +13,7 @@ Const DATE_CREATION = "22/07/2016"
 ' - À enregistrer avec l'encodage ANSI
 ' - Utiliser "option explicit" pour forcer la déclaration des variables
 ' - Si on ne souhaite pas utiliser l'interface graphique :
-'     cscript.exe //NoLogo Liste_Montage_Disques_Reseau.vbs > Liste_Montage_Disques_Reseau.log
+'     cscript.exe //NoLogo Creer_Dossiers_D.vbs > Creer_Dossiers_D.log
 
 
 ' Empêche les erreurs de s'afficher (à supprimer lors du débogage)

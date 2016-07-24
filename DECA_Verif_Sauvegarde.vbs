@@ -13,7 +13,7 @@ Const DATE_CREATION = "22/07/2016"
 ' - À enregistrer avec l'encodage ANSI
 ' - Utiliser "option explicit" pour forcer la déclaration des variables
 ' - Si on ne souhaite pas utiliser l'interface graphique :
-'     cscript.exe //NoLogo Liste_Montage_Disques_Reseau.vbs > Liste_Montage_Disques_Reseau.log
+'     cscript.exe //NoLogo DECA_Verif_Sauvegarde.vbs > DECA_Verif_Sauvegarde.log
 
 
 ' Empêche les erreurs de s'afficher (à supprimer lors du débogage)
@@ -168,12 +168,13 @@ End Sub
 
 
 
-' ***
-' Nom         : DateDerniereModificationFichier
-' Description : Renvoi la date de dernière modification du fichier filespec
-' filespec    : Chemin complet du fichier
-' retour      : Une date ou Empty s'il y a eu une erreur
-' ***
+'+----------------------------------------------------------------------------+
+'| Nom         : DateDerniereModificationFichier                              |
+'| Description : Renvoi la date de dernière modification de filespec.         |
+'| filespec    : Chemin complet du fichier.                                   |
+'| retour      : Une date ou Empty s'il y a eu une erreur.                    |
+'+----------------------------------------------------------------------------+
+
 Function DateDerniereModificationFichier(filespec)
    On Error Resume Next ' Empêche les erreurs de s'afficher (à supprimer lors du débogage)
    Dim objFSO, objFile, retour, strErrMsg, result
@@ -192,15 +193,6 @@ Function DateDerniereModificationFichier(filespec)
    DateDerniereModificationFichier = retour
 End Function
 
-
-
-
-' ***
-' Nom              : CheminDossierParent.
-' Description      : Renvoi le chemin du dossier parent de strCheminComplet (terminé par un "\").
-' strCheminComplet : chemin complet du fichier.
-' retour           : Le chemin du dossier parent terminé par un "\".
-' ***
 
 '+----------------------------------------------------------------------------+
 '| Nom           : CheminDossierParent                                        |
