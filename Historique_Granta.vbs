@@ -1,7 +1,7 @@
 '+----------------------------------------------------------------------------+
 '| Fichier     : Historique_Granta.vbs                                        |
 '+----------------------------------------------------------------------------+
-'| Version     : 1.0                                                          |
+'| Version     : 2.0                                                          |
 '+----------------------------------------------------------------------------+
 '| Description :                                                              |
 '|                                                                            |
@@ -46,7 +46,7 @@ Sub Main()
   Dim strLine, strCheminFichierHistorique
   
   
-  Const NOM_FICHIER = "historique_Granta.txt"
+  Const NOM_FICHIER = "historique_Granta2.txt"
   
   ' Chemin complet du fichier des adresses mac
   strCheminFichierHistorique = CheminDossierParent(Wscript.ScriptFullName) & NOM_FICHIER
@@ -54,7 +54,7 @@ Sub Main()
   
   'declare the SQL statement that will query the database
   'SQL = "SELECT InitialesPersonnel,NomPersonnel,PrenomPersonnel FROM dbo.ENVPersonnel WHERE NOMPERSONNEL='DUGUE'"
-  SQL = "SELECT TIMELOG32.DESCRIPTN, TIMELOG32.FORENAME, TIMELOG32.CARDHOLDER, cast(TIMELOG32.LOGDATE as datetime)-2, TIMELOG32.LOGTIME, TIMELOG32.CARDNO, USER32.ID FROM Granta.dbo.TIMELOG32 TIMELOG32, Granta.dbo.USER32 USER32 WHERE TIMELOG32.CARDHOLDER = USER32.NAME AND TIMELOG32.FORENAME = USER32.FIRSTNAME AND (TIMELOG32.LOGDATE>42488 AND USER32.NAME = 'BOISSONNET' AND USER32.FIRSTNAME = 'Bruno') ORDER BY USER32.NAME;"
+  SQL = "SELECT TIMELOG32.DESCRIPTN, TIMELOG32.FORENAME, TIMELOG32.CARDHOLDER, (cast(TIMELOG32.LOGDATE as datetime)-2) as LOGDATE, TIMELOG32.LOGTIME, TIMELOG32.CARDNO, USER32.ID FROM Granta.dbo.TIMELOG32 TIMELOG32, Granta.dbo.USER32 USER32 WHERE TIMELOG32.CARDHOLDER = USER32.NAME AND TIMELOG32.FORENAME = USER32.FIRSTNAME AND (TIMELOG32.LOGDATE>42488 AND USER32.NAME = 'BOISSONNET' AND USER32.FIRSTNAME = 'Bruno');"
   ' SQL = "SELECT TIMELOG32.DESCRIPTN, TIMELOG32.FORENAME, TIMELOG32.CARDHOLDER, cast(TIMELOG32.LOGDATE as datetime)-2, TIMELOG32.LOGTIME, TIMELOG32.CARDNO FROM Granta.dbo.TIMELOG32 TIMELOG32, Granta.dbo.USER32 USER32 WHERE TIMELOG32.CARDHOLDER = USER32.NAME AND TIMELOG32.FORENAME = USER32.FIRSTNAME AND (TIMELOG32.LOGDATE>42488 AND USER32.NAME = 'BOISSONNET' AND USER32.FIRSTNAME = 'Bruno') ORDER BY USER32.NAME;"
 
 
@@ -74,25 +74,39 @@ Sub Main()
       call EcritDansFichier(strCheminFichierHistorique, "No records returned.")
   	'Response.Write("No records returned.")
   Else
-  call EcritDansFichier(strCheminFichierHistorique, "Description;FORENAME;CARDHOLDER;LOGDATE;LOGTIME;CARDNO;ID")
-  'if there are records then loop through the fields
+    call EcritDansFichier(strCheminFichierHistorique, "")
+    ' call EcritDansFichier(strCheminFichierHistorique, "DESCRIPTN;FORENAME;CARDHOLDER;LOGDATE;LOGTIME;CARDNO;ID")
+    Dim elt, strLigne
+    strLigne = ""
+    For each elt in Recordset.Fields
+      strLigne = strLigne & elt.name & ";"
+    Next
+    call EcritDansFichier(strCheminFichierHistorique, strLigne)
+    strLigne = ""
+    
+    'if there are records then loop through the fields
   	Do While NOT Recordset.Eof
-  		' Recordset.MoveFirst
-      ' WScript.Echo("Nombre de champs : " & Recordset.Fields.Count)
-      ' Exit Do
-      ' WScript.Echo(Recordset.Fields(0) & " " & Recordset.Fields(1) & " " & Recordset.Fields(2) & " " & Recordset.Fields(3) & " " & Recordset.Fields(4) & " " & Recordset.Fields(5) & " " & Recordset.Fields(6))
-      ' Exit Do
-      call EcritDansFichier(strCheminFichierHistorique, Recordset.Fields(0) & ";" & Recordset.Fields(1) & ";" & Recordset.Fields(2) & ";" & Recordset.Fields(3) & ";" & Recordset.Fields(4) & ";" & Recordset.Fields(5) & ";" & Recordset.Fields(6) )
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.DESCRIPTN") & ";" & Recordset("TIMELOG32.FORENAME") & ";" & Recordset("TIMELOG32.CARDHOLDER") & ";" & Recordset("TIMELOG32.LOGDATE") & ";" & Recordset("TIMELOG32.LOGTIME") & ";" & Recordset("TIMELOG32.CARDNO") )' & ";" & Recordset("USER32.ID") )
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.DESCRIPTN"))
-        ' WSCript.Echo(Recordset("Granta.dbo.TIMELOG32.DESCRIPTN"))
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.FORENAME"))
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.CARDHOLDER"))
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.LOGDATE"))
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.LOGTIME"))
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("TIMELOG32.CARDNO"))
-  		' call EcritDansFichier(strCheminFichierHistorique, Recordset("USER32.ID"))
-  		call EcritDansFichier(strCheminFichierHistorique, "")
+  		' Recordset.MoveFirst '     => Revient au premier enregistrement
+      ' Recordset.MoveNext        => Passe à l'enregistrement suivant
+      ' Recordset.Fields.Count    => Nombre de champs
+      ' Recordset.Fields(0)       => Contenu de l'élément 0 du recordset (ou Recordset.Fields(0).value)
+      ' Recordset("DESCRIPTN")    => Contenu de l'élément correspondant à la colonne passée en paramètre (mais issu de la ligne du SELECT : ici DESCRIPTN).
+      '                              ATTENTION !!! S'il n'y a pas de nom dans le select, il faut mettre "" pour retrouver l'élément ou utiliser les index.
+      ' Recordset.Fields(0).name  => Nom de l'élément. Permet de connaître les noms par lesquels récupérer les valeurs.
+      '                              Exemple : call EcritDansFichier(strCheminFichierHistorique, Recordset.Fields(0).name & ";" & Recordset.Fields(1).name & ";" & Recordset.Fields(2).name & ";" & Recordset.Fields(3).name & ";" & Recordset.Fields(4).name & ";" & Recordset.Fields(5).name & ";" & Recordset.Fields(6).name )
+      
+
+      ' DESCRIPTN;FORENAME;CARDHOLDER;;LOGTIME;CARDNO;ID        => si on ne met pas "as LOGDATE" dans le SELECT
+      ' DESCRIPTN;FORENAME;CARDHOLDER;LOGDATE;LOGTIME;CARDNO;ID => si on met "as LOGDATE" dans le SELECT
+
+      For each elt in Recordset.Fields
+        strLigne = strLigne & elt.value & ";"
+      Next
+      call EcritDansFichier(strCheminFichierHistorique, strLigne)
+      ' Récupération à partir de l'index : ' call EcritDansFichier(strCheminFichierHistorique, Recordset.Fields(0) & ";" & Recordset.Fields(1) & ";" & Recordset.Fields(2) & ";" & Recordset.Fields(3) & ";" & Recordset.Fields(4) & ";" & Recordset.Fields(5) & ";" & Recordset.Fields(6) )
+      ' Récupération à partir du nom : ' call EcritDansFichier(strCheminFichierHistorique, Recordset("DESCRIPTN") & ";" & Recordset("FORENAME") & ";" & Recordset("CARDHOLDER") & ";" & Recordset("LOGDATE") & ";" & Recordset("LOGTIME") & ";" & Recordset("CARDNO") )' & ";" & Recordset("ID") )
+  		strLigne = ""
+
   		Recordset.MoveNext
   	Loop
   End If
