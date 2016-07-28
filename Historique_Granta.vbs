@@ -3,7 +3,7 @@ Option Explicit
 
 Const FICHIER       = "Historique_Granta.vbs"
 Const DESCRIPTION   = "Retourne l'historique des entrées/sortie dans Granta pour un utilisateur."
-Const VERSION       = "3.0"
+Const VERSION       = "3.1"
 Const AUTEUR        = "Bruno Boissonnet"
 Const DATE_CREATION = "22/07/2016"
 
