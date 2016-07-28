@@ -89,7 +89,7 @@ Sub LanceRequeteSQL(strConnexion, strRequeteSQL)
     WScript.Echo "Erreur lors de l'appel de la fonction Open (Numéro: " & Err.Number & ", Description: " &  Err.Description & ", Infos de connexion : " & strConnexion & ")"
     Err.Clear
   Else
-    WScript.Echo("Connexion """ & strConnexion & """ : OK.")
+    ' WScript.Echo("Connexion """ & strConnexion & """ : OK.")
 
     'Open the recordset object executing the SQL statement and return records
     Recordset.Open strRequeteSQL,Connection
@@ -97,7 +97,7 @@ Sub LanceRequeteSQL(strConnexion, strRequeteSQL)
       WScript.Echo "Erreur lors de l'appel de la fonction Open (Numéro: " & Err.Number & ", Description: " &  Err.Description & ", Infos de connexion : " & strConnexion & ", Requête SQL : " & strRequeteSQL & ")"
       Err.Clear
     Else
-      WScript.Echo("Recordset """ & strConnexion & ", Requête SQL : " & strRequeteSQL & """ : OK.")
+      ' WScript.Echo("Recordset """ & strConnexion & ", Requête SQL : " & strRequeteSQL & """ : OK.")
 
       'first of all determine whether there are any records
       If Recordset.EOF Then
